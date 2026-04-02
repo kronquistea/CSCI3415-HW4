@@ -57,8 +57,10 @@
             print("Var is" .. var)
         end
         ```
+        The `..` notation in the previous example is simply string concatentation.
 5. Identify any unique or innovative features that are very specific to the language and explain how they affect the way programmers write and structure code.
    1. I think the most unique thing about Lua is that there is only one default data structure - the table. A table can be an array (without being a dictionary/map), it can be a dictionary/map, it can be like a struct, etc. This means the language has much simpler implementation and allows for more flexbility. However, because there is no enforced schema it can be easier to make mistakes.
    2. Lua also does not support classes. If you want to create classes you instead have to create a table and metatables. So tables are objects and metatables defined behavior for the objects just as inheritance and operator overloading. This leads to more flexibility as classes can be whatever you want them to be. It also allows for a much more lightweight language design - which is the main purpose of Lua, to be embedded as a scripting language. However because there are no traditional templates for classes, you must create all classes from "scratch".
    3. Lua also supports coroutines through the standard library. This makes Lua especially applicable for video game development where code may need to be run every time a frame is updated or when something happens and the code should continue from where it left off.
-   4. Lua's ideology of being as simple and small as possible have allowed it to thrive as an embeddable language and also for game development on its own.
+   4. Lua's ideology of being as simple and small as possible have allowed it to thrive as an embeddable language and also for game development on its own. As the developers of Lua say "Mechanisms over Policies".
+   5. Also the only "false" values are `nil` and `false`. The developers of Lua said that if they could go back in time they would change `nil` to not be a false value, however because `nil` is already written in much code and interpreted as false it is too late to make the change.
