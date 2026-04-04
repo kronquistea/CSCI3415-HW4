@@ -2,7 +2,7 @@
 local gSocialSentimentScores = {}
 
 -- Glocal variable to store social sent score of a given file
-local gSocialSentScore = 0
+local gAccumulatedSocialSentScore = 0
 
 -- Global variable to store start rating based on social sent score of given file
 local gStarRating = 0
@@ -56,7 +56,7 @@ function getSocialSentimentScore(filename)
     local socialSentScore = calculateSocialSentimentScore(wordsAndScores, filename)
 
     -- Assign global variable
-    gSocialSentScore = socialSentScore
+    gAccumulatedSocialSentScore = socialSentScore
 end
 
 -- Function that generates scores for words based on SocialSentimentScores table
@@ -67,7 +67,7 @@ function generateWordScores(filename)
     -- Read entire file and set to string variable t
     local t = f:read("*all")
 
-    -- Table containing words and scores for the words/numbers from the input text file
+    -- Table containing words and the number of occurrences for that word <word, occurrences>
     local wordsAndScores = {}
 
     -- Pattern to match at strings with alphanumeric characters, apostrophes and right-side single quotes
@@ -107,8 +107,12 @@ function generateWordScores(filename)
             -- If the word has a score, add the word and score to the list of wordsAndScores, otherwise skip the word,
             -- For example, the word "this" has no score in the socialsent.csv file
             if gSocialSentimentScores[word] then
-                -- Set key-value pair in wordsAndScores dictionary
-                wordsAndScores[word] = gSocialSentimentScores[word]
+                if wordsAndScores[word] then
+                    -- Increment value for the word
+                    wordsAndScores[word] = wordsAndScores[word] + 1
+                else
+                    wordsAndScores[word] = 1
+                end
             end
         -- If k was not a number (meaning no pattern was found), increment i
         else
@@ -119,7 +123,7 @@ function generateWordScores(filename)
         -- print("Word: ", word, "\n")
     end
 
-    -- Return dictionary containing words from text file and their associated scores
+    -- Return dictionary containing words from text file and number of occurrences
     return wordsAndScores
 end
 
@@ -137,14 +141,14 @@ function calculateSocialSentimentScore(wordsAndScores, filename)
     
     -- Print all keys of dictionary "wordsAndScores"
     for i in pairs(wordsAndScores) do
-        if i then
-            totalSentimentScore = totalSentimentScore + wordsAndScores[i]
+        while i and wordsAndScores[i] > 0 do
+            totalSentimentScore = totalSentimentScore + gSocialSentimentScores[i]
+            wordsAndScores[i] = wordsAndScores[i] - 1
+            -- Create formatted string to print and save to output file
+            local formattedString = string.format("%s: %.2f, %.2f", i, gSocialSentimentScores[i], totalSentimentScore)
+            print(formattedString)
+            f:write(formattedString, "\n")
         end
-
-        -- Create formatted string to print and save to output file
-        local formattedString = string.format("%s: %.2f, %.2f", i, wordsAndScores[i], totalSentimentScore)
-        print(formattedString)
-        f:write(formattedString, "\n")
     end
 
     -- Close the output file
@@ -159,7 +163,7 @@ function getStarRating()
     local starRating = 0
 
     -- Variable to avoid constantly referencing global variable
-    local socialSentScore = gSocialSentScore
+    local socialSentScore = gAccumulatedSocialSentScore
 
     -- Exact star ranking scale provided by HW4 instructions
     -- There is no Lua switch/case statement so if-elseif-else is my easiest implementation option
@@ -203,7 +207,7 @@ function main()
     getStarRating()
 
     -- Formatted score variable
-    local formattedScore = string.format("%s score: %.2f", inputfile, gSocialSentScore)
+    local formattedScore = string.format("%s score: %.2f", inputfile, gAccumulatedSocialSentScore)
     -- Formatter rating variable
     local formattedRating = string.format("%s Stars: %d", inputfile, gStarRating)
 
