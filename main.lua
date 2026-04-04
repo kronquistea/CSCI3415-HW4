@@ -53,7 +53,7 @@ function getSocialSentimentScore(filename)
 
     -- Calculate the social sent score for the given input file
     print("Calculate Social Sentiment Score")
-    local socialSentScore = calculateSocialSentimentScore(wordsAndScores)
+    local socialSentScore = calculateSocialSentimentScore(wordsAndScores, filename)
 
     -- Assign global variable
     gSocialSentScore = socialSentScore
@@ -67,11 +67,11 @@ function generateWordScores(filename)
     -- Read entire file and set to string variable t
     local t = f:read("*all")
 
-    -- Table containing words and scores for the words/numbers from the input text file.
+    -- Table containing words and scores for the words/numbers from the input text file
     local wordsAndScores = {}
 
-    -- Pattern to match at least one alphanumeric character
-    local wordPattern = "[%w']+"
+    -- Pattern to match at strings with alphanumeric characters, apostrophes and right-side single quotes
+    local wordPattern = "[%w'’]+"
 
     -- Index for starting pattern matching from
     local startPatternIndex = 1
@@ -124,11 +124,16 @@ function generateWordScores(filename)
 end
 
 -- Function that calculated the actual sentiment score the input file
-function calculateSocialSentimentScore(wordsAndScores)
+function calculateSocialSentimentScore(wordsAndScores, filename)
+    -- Create output file with "output_" concatenated to front of filename
+    filename = "output_"..filename
+    local f = assert(io.open(filename, "w"))
+
     -- Variable to store total sentiment score
     local totalSentimentScore = 0
 
     print("[word: current_score, accumulated_score]")
+    f:write("[word: current_score, accumulated_score]\n")
     
     -- Print all keys of dictionary "wordsAndScores"
     for i in pairs(wordsAndScores) do
@@ -136,8 +141,14 @@ function calculateSocialSentimentScore(wordsAndScores)
             totalSentimentScore = totalSentimentScore + wordsAndScores[i]
         end
 
-        print(string.format("%s: %.2f, %.2f", i, wordsAndScores[i], totalSentimentScore))
+        -- Create formatted string to print and save to output file
+        local formattedString = string.format("%s: %.2f, %.2f", i, wordsAndScores[i], totalSentimentScore)
+        print(formattedString)
+        f:write(formattedString, "\n")
     end
+
+    -- Close the output file
+    f:close()
 
     return totalSentimentScore
 end
@@ -191,10 +202,26 @@ function main()
     -- Get the star rating based on the social sentiment score for the input file
     getStarRating()
 
+    -- Formatted score variable
+    local formattedScore = string.format("%s score: %.2f", inputfile, gSocialSentScore)
+    -- Formatter rating variable
+    local formattedRating = string.format("%s Stars: %d", inputfile, gStarRating)
+
     -- Print final score and star rating
     print()
-    print(string.format("%s score: %.2f", arg[1], gSocialSentScore))
-    print(string.format("%s Stars: %d", arg[1], gStarRating))
+    print(formattedScore)
+    print(formattedRating)
+
+    -- Create output file
+    local outputFilename = "output_"..inputfile
+    -- Open output file
+    local f = assert(io.open(outputFilename, "a"))
+    -- Write summary (score and rating) to output file
+    f:write("\n", formattedScore, "\n")
+    f:write(formattedRating)
+
+    -- Close output file
+    f:close()
 end
 
 main()
