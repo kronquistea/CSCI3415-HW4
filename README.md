@@ -10,4 +10,4 @@ Run `lua main.lua <input_file_name>.txt` for testing specific files.
 ### Replit
 I created a blank Lua project on replit by having the replit agent by running "Blank Lua Project". I did not actually program in replit, I programmed locally in VSCode and then tested on replit. Here is the replit project I tested on: [HW4 Lua Replit Project](https://csci-3415-hw-4--erikkronquist1.replit.app)
 #### Execution on Replit
-Execution on replit can be done the same as locally as specified before.
+Execution on replit can be done the same as locally as specified before. Alternatively the makefile provided in that replit link can be used, however I had trouble getting the green `run` button to appear in replit so I had to resort to using the replit shell.
