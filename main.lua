@@ -1,4 +1,4 @@
--- Global empty table to store parsed "words" and "scores"
+-- Global variable as dictionary to store parsed "words" and "scores"
 local gSocialSentimentScores = {}
 
 -- Glocal variable to store social sent score of a given file
@@ -6,6 +6,12 @@ local gAccumulatedSocialSentScore = 0
 
 -- Global variable to store start rating based on social sent score of given file
 local gStarRating = 0
+
+-- Global variables to store total word count from input file
+local gTotalWordCount = 0
+
+-- Global variable to store number of words with scores found
+local gWordsWithScoresFound = 0
 
 -- Function that builds the SocialSentimentScores table from the socialsent.csv file
 function buildSocialSentimentTable(filename)
@@ -71,7 +77,7 @@ function generateWordScores(filename)
     local wordsAndScores = {}
 
     -- Pattern to match at strings with alphanumeric characters, apostrophes and right-side single quotes
-    local wordPattern = "[%w'’]+"
+    local wordPattern = "[%w'‘’]+"
 
     -- Index for starting pattern matching from
     local startPatternIndex = 1
@@ -107,20 +113,27 @@ function generateWordScores(filename)
             -- If the word has a score, add the word and score to the list of wordsAndScores, otherwise skip the word,
             -- For example, the word "this" has no score in the socialsent.csv file
             if gSocialSentimentScores[word] then
+                -- If the number of occurrences is at least one (meaning not nil) then increment the number of occurrences for the word
+                -- wordsAndScores[word] will initally be nil (which results in false) until the else statement is executed
                 if wordsAndScores[word] then
                     -- Increment value for the word
                     wordsAndScores[word] = wordsAndScores[word] + 1
                 else
+                    -- Set the number of occurrences for the word to 1 (first occurrence of word was found)
                     wordsAndScores[word] = 1
                 end
+
+                -- Increment the number of words with scores found (for end of output file purposes)
+                gWordsWithScoresFound = gWordsWithScoresFound + 1
             end
+
+            -- Increment the number of total words found (with or without scores) (for end of output file purposes)
+            gTotalWordCount = gTotalWordCount + 1
         -- If k was not a number (meaning no pattern was found), increment i
         else
             -- Increment i
             i = i + 1
         end
-
-        -- print("Word: ", word, "\n")
     end
 
     -- Return dictionary containing words from text file and number of occurrences
@@ -128,7 +141,7 @@ function generateWordScores(filename)
 end
 
 -- Function that calculated the actual sentiment score the input file
-function calculateSocialSentimentScore(wordsAndScores, filename)
+function calculateSocialSentimentScore(wordsAndOccurrences, filename)
     -- Create output file with "output_" concatenated to front of filename
     filename = "output_"..filename
     local f = assert(io.open(filename, "w"))
@@ -136,14 +149,19 @@ function calculateSocialSentimentScore(wordsAndScores, filename)
     -- Variable to store total sentiment score
     local totalSentimentScore = 0
 
-    print("[word: current_score, accumulated_score]")
-    f:write("[word: current_score, accumulated_score]\n")
+    -- Print and write to output file the format for output
+    print("[word: word_score, accumulated_score]")
+    f:write("[word: word_score, accumulated_score]\n")
     
-    -- Print all keys of dictionary "wordsAndScores"
-    for i in pairs(wordsAndScores) do
-        while i and wordsAndScores[i] > 0 do
+    for i in pairs(wordsAndOccurrences) do
+        -- If the key "i" exists and the number of occurences for the word "i" is at least one, process value for sentiment score analysis
+        while i and wordsAndOccurrences[i] > 0 do
+            -- Add sentiment score based on previous sentiment score and score of the word
             totalSentimentScore = totalSentimentScore + gSocialSentimentScores[i]
-            wordsAndScores[i] = wordsAndScores[i] - 1
+
+            -- Decrement the number of occurrences for the word
+            wordsAndOccurrences[i] = wordsAndOccurrences[i] - 1
+
             -- Create formatted string to print and save to output file
             local formattedString = string.format("%s: %.2f, %.2f", i, gSocialSentimentScores[i], totalSentimentScore)
             print(formattedString)
@@ -214,7 +232,7 @@ function main()
     -- Print final score and star rating
     print()
     print(formattedScore)
-    print(formattedRating)
+    print(formattedRating, "\n")
 
     -- Create output file
     local outputFilename = "output_"..inputfile
@@ -222,7 +240,15 @@ function main()
     local f = assert(io.open(outputFilename, "a"))
     -- Write summary (score and rating) to output file
     f:write("\n", formattedScore, "\n")
-    f:write(formattedRating)
+    f:write(formattedRating, "\n")
+
+    -- Write total word count and total words w/ scores count to the output file
+    f:write(string.format("Total Word Count: %s\n", gTotalWordCount))
+    f:write(string.format("Words With Known Scores Found Count: %s", gWordsWithScoresFound))
+
+    -- Calculate the percentage of words that had ratings and write that to the output file
+    local percentageOfWordsWithScoresFound = (gWordsWithScoresFound / gTotalWordCount) * 100
+    f:write(string.format("\nPercent Words w/ Scores Found: %.2f", percentageOfWordsWithScoresFound))
 
     -- Close output file
     f:close()
