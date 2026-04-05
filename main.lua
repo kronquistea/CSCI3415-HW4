@@ -54,12 +54,12 @@ end
 function getSocialSentimentScore(filename)
     -- Populate the scores for the words from the given input file
     print("Generate Word Scores")
-    local wordsAndScores = generateWordScores(filename)
+    local wordsAndOccurrences = generateWordScores(filename)
     print()
 
     -- Calculate the social sent score for the given input file
     print("Calculate Social Sentiment Score")
-    local socialSentScore = calculateSocialSentimentScore(wordsAndScores, filename)
+    local socialSentScore = calculateSocialSentimentScore(wordsAndOccurrences, filename)
 
     -- Assign global variable
     gAccumulatedSocialSentScore = socialSentScore
@@ -74,7 +74,7 @@ function generateWordScores(filename)
     local t = f:read("*all")
 
     -- Table containing words and the number of occurrences for that word <word, occurrences>
-    local wordsAndScores = {}
+    local wordsAndOccurrences = {}
 
     -- Pattern to match at strings with alphanumeric characters, apostrophes and right-side single quotes
     local wordPattern = "[%w'‘’]+"
@@ -115,12 +115,12 @@ function generateWordScores(filename)
             if gSocialSentimentScores[word] then
                 -- If the number of occurrences is at least one (meaning not nil) then increment the number of occurrences for the word
                 -- wordsAndScores[word] will initally be nil (which results in false) until the else statement is executed
-                if wordsAndScores[word] then
+                if wordsAndOccurrences[word] then
                     -- Increment value for the word
-                    wordsAndScores[word] = wordsAndScores[word] + 1
+                    wordsAndOccurrences[word] = wordsAndOccurrences[word] + 1
                 else
                     -- Set the number of occurrences for the word to 1 (first occurrence of word was found)
-                    wordsAndScores[word] = 1
+                    wordsAndOccurrences[word] = 1
                 end
 
                 -- Increment the number of words with scores found (for end of output file purposes)
@@ -137,7 +137,7 @@ function generateWordScores(filename)
     end
 
     -- Return dictionary containing words from text file and number of occurrences
-    return wordsAndScores
+    return wordsAndOccurrences
 end
 
 -- Function that calculated the actual sentiment score the input file
