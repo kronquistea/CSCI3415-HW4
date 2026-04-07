@@ -10,6 +10,9 @@ Run `lua main.lua <input_file_name>.txt` for testing specific files.
 #### Important note
 The `socialsent.csv` MUST be in the same directory as `main.lua` for this program to work.
 ### Replit
-I created a blank Lua project on replit by having the replit agent by running "Blank Lua Project". I did not actually program in replit, I programmed locally in VSCode and then tested on replit. Here is the replit project I tested on: [HW4 Lua Replit Project](https://csci-3415-hw-4--erikkronquist1.replit.app)
+I created a blank Lua project on replit by having the replit agent by running "Blank Lua Project". I did not actually program in replit, I programmed locally in VSCode and then tested on replit. I am unable to provide a link to my replit project that I actually used to test on because I keep getting a error saying the project is not public so I am unable to provide a link to the project. Here are images showing that I tested it on replit.
+![Good Output](goodoutput.png)
+![Bad Output](badoutput.png)
+![Novel Review Output](novelreviewoutput.png)
 #### Execution on Replit
 Execution on replit can be done the same as locally as specified before. Alternatively the makefile provided in that replit link can be used, however I had trouble getting the green `run` button to appear in replit so I had to resort to using the replit shell.
