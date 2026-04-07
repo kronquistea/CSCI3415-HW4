@@ -15,8 +15,11 @@ local gWordsWithScoresFound = 0
 
 -- Function to build the social sentiment table using the gmatch lua function
 function buildSocialSentimentTablegMatch(socialSentFileName)
-    -- Open csv file in read mode
+    -- Open csv file in read mode and raise error is csv file could not be opened
     local csv = assert(io.open(socialSentFileName, "r"))
+
+    -- Inform user that csv file is being parsed
+    print(string.format("%s is now being parsed.", socialSentFileName))
     
     -- Inform user that the first line (word,Sentiment scores,,https://nlp.stanford.edu/projects/socialsent/) is being removed for processing
     print(string.format("Removing %s\n", csv:read()))
@@ -37,7 +40,6 @@ end
 -- Function that takes the input file and generates a social sent score based on the SocialSentimentScores table
 function getSocialSentimentScore(inputfile)
     -- Populate the scores for the words from the given input file
-    print("Generating Word Scores")
     local wordsAndOccurrences = generateWordOccurrencesgMatch(inputfile)
     print()
 
@@ -51,7 +53,7 @@ end
 
 -- Function to generate the number of occurrences for the words in the input file using the gmatch lua function
 function generateWordOccurrencesgMatch(inputfile)
-    -- Open input file in read mode
+    -- Open input file in read mode and raise error if inputfile could not be opened
     local f = assert(io.open(inputfile, "r"))
 
     -- Read the entire input file as one big string
@@ -60,20 +62,23 @@ function generateWordOccurrencesgMatch(inputfile)
     -- Dictionary to store a word and how many times it occurred in the input text file
     local wordsAndOccurrences = {}
 
+    -- Print generating word score message to user in console output
+    print("Generating Word Scores")
+
     -- Loop through each word in the input text file finding all "words" with numbers, letters, apostrophes, single quotes (left and right) 
     for word in string.gmatch(t, "[%d%a'‘’]+") do
         -- Set word to lowercase because all words in socialsent.csv are in lowercase
-        word = string.lower(word)
+        local lowerCaseWord = string.lower(word)
 
         -- If the found word has a score in the social sentiment table then process the wordsAndOccurrences dictionary
-        if gSocialSentimentScores[word] then
+        if gSocialSentimentScores[lowerCaseWord] then
             -- If the word (which has a known corresponding score) has not yet been found, set the number of occurrences to 1
-            if wordsAndOccurrences[word] == nil then
+            if wordsAndOccurrences[lowerCaseWord] == nil then
                 -- Set number of occurrences to 1
-                wordsAndOccurrences[word] = 1
+                wordsAndOccurrences[lowerCaseWord] = 1
             -- if the word (which has a known corresponding score) has been found fore, increment the number of occurrences
             else
-                wordsAndOccurrences[word] = wordsAndOccurrences[word] + 1
+                wordsAndOccurrences[lowerCaseWord] = wordsAndOccurrences[lowerCaseWord] + 1
             end
 
             -- Increment number of words found that also have a score for file writing purposes
