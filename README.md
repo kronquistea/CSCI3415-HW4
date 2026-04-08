@@ -14,5 +14,3 @@ I created a blank Lua project on replit by having the replit agent by running "B
 ![Good Output](goodoutput.png)
 ![Bad Output](badoutput.png)
 ![Novel Review Output](novelreviewoutput.png)
-#### Execution on Replit
-Execution on replit can be done the same as locally as specified before. Alternatively the makefile provided in that replit link can be used, however I had trouble getting the green `run` button to appear in replit so I had to resort to using the replit shell.
